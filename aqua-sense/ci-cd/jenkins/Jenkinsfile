@@ -1,0 +1,66 @@
+pipeline {
+    agent any
+    
+    environment {
+        DOCKER_REGISTRY = 'your-registry.azurecr.io'
+        AWS_REGION = 'us-east-1'
+    }
+    
+    stages {
+        stage('Checkout') {
+            steps {
+                checkout scm
+            }
+        }
+        
+        stage('Build Services') {
+            parallel {
+                stage('Auth Service') {
+                    steps {
+                        dir('services/auth-service') {
+                            sh 'mvn clean package -DskipTests'
+                        }
+                    }
+                }
+                stage('Sensor Service') {
+                    steps {
+                        dir('services/sensor-service') {
+                            sh 'mvn clean package -DskipTests'
+                        }
+                    }
+                }
+            }
+        }
+        
+        stage('Run Tests') {
+            steps {
+                sh 'mvn test'
+            }
+        }
+        
+        stage('Build Docker Images') {
+            steps {
+                sh 'docker-compose build'
+            }
+        }
+        
+        stage('Push to Registry') {
+            steps {
+                sh 'docker-compose push'
+            }
+        }
+        
+        stage('Deploy to Kubernetes') {
+            steps {
+                sh 'kubectl apply -f infra/kubernetes/'
+            }
+        }
+    }
+    
+    post {
+        always {
+            junit '**/target/surefire-reports/*.xml'
+            cleanWs()
+        }
+    }
+}
