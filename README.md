@@ -1,4 +1,4 @@
-# AquaSense – Enterprise Water Intelligence Platform
+# Water Quality Intelligence & Community Reporting Platform
 
 ![AquaSense Logo](docs/assets/logo.png)
 
@@ -284,3 +284,4 @@ Built with ❤️ by the AquaSense Team
 
 **Version**: 1.0.0  
 **Last Updated**: January 2026
+
